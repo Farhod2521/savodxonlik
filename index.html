@@ -586,6 +586,7 @@
         
         // API endpoints
         const API_BASE_URL = "https://savodxonlik.pythonanywhere.com/api";
+        const API_MEDIA_URL = "https://savodxonlik.pythonanywhere.com/";
         const CATEGORIES_URL = `${API_BASE_URL}/categories/`;
         const QUESTIONS_URL = `${API_BASE_URL}/questions/`;
         
@@ -624,37 +625,48 @@
         
         // Initialize the game
         async function initGame() {
-            // Show name modal
-            nameModal.style.display = "flex";
-            
-            // Load categories from API
-            await loadCategories();
-            
-            // Start game button
-            startGameBtn.addEventListener("click", () => {
-                playerName = playerNameInput.value.trim();
-                if (playerName === "") {
-                    alert("Please enter your name!");
-                    return;
-                }
-                
-                // Set name and create avatar
-                displayName.textContent = playerName;
-                playerAvatar.textContent = playerName[0].toUpperCase();
-                nameModal.style.display = "none";
-                mainContainer.style.display = "block";
-            });
-            
-            // Back button
-            backButton.addEventListener("click", () => {
-                resetGame();
-            });
-            
-            // Close rules button
-            closeRulesBtn.addEventListener("click", () => {
-                rulesModal.style.display = "none";
-            });
+    // LocalStorage'dan ismni olish
+    const savedName = localStorage.getItem("playerName");
+    if (savedName) {
+        playerName = savedName;
+        displayName.textContent = playerName;
+        playerAvatar.textContent = playerName[0].toUpperCase();
+        nameModal.style.display = "none";
+        mainContainer.style.display = "block";
+    } else {
+        nameModal.style.display = "flex";
+    }
+
+    await loadCategories();
+
+    // Start button event
+    startGameBtn.addEventListener("click", () => {
+        playerName = playerNameInput.value.trim();
+        if (playerName === "") {
+            alert("Iltimos, ismingizni kiriting!");
+            return;
         }
+
+        // Ismni saqlash
+        localStorage.setItem("playerName", playerName);
+
+        displayName.textContent = playerName;
+        playerAvatar.textContent = playerName[0].toUpperCase();
+        nameModal.style.display = "none";
+        mainContainer.style.display = "block";
+    });
+
+    // Back button
+    backButton.addEventListener("click", () => {
+        resetGame();
+    });
+
+    // Close rules button
+    closeRulesBtn.addEventListener("click", () => {
+        rulesModal.style.display = "none";
+    });
+}
+
         
         // Load categories from API
         async function loadCategories() {
@@ -869,7 +881,8 @@
             maxAttempts = Math.max(3, baseAttempts - lengthPenalty);
             
             // Display image
-            imageContainer.innerHTML = `<img src="${currentQuestion.image}" alt="${currentWord}">`;
+            imageContainer.innerHTML = `<img src="${API_MEDIA_URL + currentQuestion.image}" alt="${currentWord}">`;
+
             
             // Display word
             displayWord();
